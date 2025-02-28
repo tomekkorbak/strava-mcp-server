@@ -16,7 +16,6 @@ The server exposes the following tools:
 - `get_activities_by_date_range(start_date: str, end_date: str, limit: int = 30)`: Get activities within a specific date range
 - `get_activity_by_id(activity_id: int)`: Get detailed information about a specific activity
 - `get_recent_activities(days: int = 7, limit: int = 10)`: Get activities from the past X days
-- `get_athlete_profile()`: Get the authenticated athlete's profile
 
 Dates should be provided in ISO format (`YYYY-MM-DD`).
 
@@ -26,7 +25,6 @@ The server returns activity data with consistent field names and units:
 
 | Field | Description | Unit |
 |-------|-------------|------|
-| `id` | Activity ID | - |
 | `name` | Activity name | - |
 | `sport_type` | Type of sport | - |
 | `start_date` | Start date and time | ISO 8601 |
@@ -101,7 +99,6 @@ Once connected, you can ask Claude questions like:
 - "Show me my activities from last week"
 - "What was my longest run in the past month?"
 - "Get details about my latest cycling activity"
-- "What's my athlete profile information?"
 
 ## Error Handling
 
