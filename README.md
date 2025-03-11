@@ -6,6 +6,10 @@
 
 A [Model Context Protocol](https://modelcontextprotocol.io/introduction) (MCP) server that provides access to the Strava API. It allows language models to query athlete activities data from the Strava API.
 
+<a href="https://glama.ai/mcp/servers/kjgj5ovtdq">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/kjgj5ovtdq/badge" alt="Strava Server MCP server" />
+</a>
+
 ## Available Tools
 
 The server exposes the following tools:
