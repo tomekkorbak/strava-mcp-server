@@ -148,6 +148,43 @@ class StravaClient:
     def _filter_activities(self, activities: list) -> list:
         """Filter a list of activities to only include specific keys with units."""
         return [self._filter_activity(activity) for activity in activities]
+    
+    def get_gear_stats(self) -> dict:
+        """
+        Get stats about gear used by the athlete, like bikes and shoes.
+
+        Args:
+            None
+        
+        Returns:
+            Dictionary containing gear stats.
+        """
+        # Get the athlete's gear data
+        athlete_data = self._make_request("athlete")
+
+        # Parse bikes
+        bikes = [
+            {
+                "id": bike["id"],
+                "name": bike["name"],
+                "distance": bike["converted_distance"],
+                "retired": bike["retired"],
+            }
+            for bike in athlete_data.get("bikes", [])
+        ]
+
+        # Parse shoes
+        shoes = [
+            {
+                "id": shoe["id"],
+                "name": shoe["name"],
+                "distance": shoe["converted_distance"],
+                "retired": shoe["retired"],
+            }
+            for shoe in athlete_data.get("shoes", [])
+        ]
+
+        return {"bikes": bikes, "shoes": shoes}
 
     def close(self) -> None:
         """Close the HTTP client."""
@@ -316,6 +353,32 @@ def get_recent_activities(days: int = 7, limit: int = 10) -> dict[str, Any]:
         return {"data": activities}
     except Exception as e:
         return {"error": str(e)}
+    
+@mcp.tool()
+def get_gear_stats() -> dict[str, Any]:
+    """
+    Get stats about gear used by the athlete, like bikes and shoes.
+    Helps answer questions like "How many miles have I ridden on my bike?" or "How many miles have I run in my shoes?"
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing gear stats
+            
+    """
+    if strava_client is None:
+        return {
+            "error": "Strava client not initialized. Please provide refresh token, client ID, and client secret."  # noqa: E501
+        }
+    
+    try:
+        # Get the athlete's gear
+        gear = strava_client.get_gear_stats()
+        return {"data": gear}
+    except Exception as e:
+        return {"error": str(e)}
+
 
 
 def main() -> None:
@@ -336,8 +399,8 @@ def main() -> None:
                 "Warning: Strava client not initialized. Please set STRAVA_REFRESH_TOKEN, STRAVA_CLIENT_ID, and STRAVA_CLIENT_SECRET environment variables."  # noqa: E501
             )
 
-    mcp.run(transport="stdio")
-
+    # mcp.run(transport="stdio")
+    mcp.run(transport="sse")
 
 if __name__ == "__main__":
     main()
