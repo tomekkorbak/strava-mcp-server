@@ -64,6 +64,16 @@ To use this server, you'll need to authenticate with the Strava API. Follow thes
    - `STRAVA_CLIENT_SECRET`: Your Strava API Client Secret
    - `STRAVA_REFRESH_TOKEN`: Your Strava API Refresh Token
 
+## Installation
+
+To set up the Strava MCP Server locally, run the following commands:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -e .
+```
+
 ## Usage
 
 ### Claude for Desktop
