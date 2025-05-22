@@ -121,6 +121,7 @@ class StravaClient:
         """Filter activity to only include specific keys and rename with units."""
         # Define field mappings with units
         field_mappings = {
+            "id": "id",
             "calories": "calories",
             "distance": "distance_metres",
             "elapsed_time": "elapsed_time_seconds",
@@ -152,6 +153,19 @@ class StravaClient:
     def close(self) -> None:
         """Close the HTTP client."""
         self.client.close()
+
+    def get_activity_laps(self, activity_id: int) -> list:
+        """
+        Get laps for a specific activity.
+
+        Args:
+            activity_id: ID of the activity to retrieve laps for
+
+        Returns:
+            List of laps (as returned by Strava API)
+        """
+        laps = self._make_request(f"activities/{activity_id}/laps")
+        return laps
 
 
 def timestamp_to_date(timestamp: int) -> date:
@@ -314,6 +328,29 @@ def get_recent_activities(days: int = 7, limit: int = 10) -> dict[str, Any]:
 
         activities = strava_client.get_activities(limit=limit, after=after)
         return {"data": activities}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def get_activity_laps(activity_id: int) -> dict[str, Any]:
+    """
+    Get laps for a specific activity.
+
+    Args:
+        activity_id: ID of the activity to retrieve laps for
+
+    Returns:
+        Dictionary containing laps data
+    """
+    if strava_client is None:
+        return {
+            "error": "Strava client not initialized. Please provide refresh token, client ID, and client secret."
+        }
+
+    try:
+        laps = strava_client.get_activity_laps(activity_id)
+        return {"data": laps}
     except Exception as e:
         return {"error": str(e)}
 
