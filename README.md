@@ -16,6 +16,7 @@ The server exposes the following tools:
 - `get_activities_by_date_range(start_date: str, end_date: str, limit: int = 30)`: Get activities within a specific date range
 - `get_activity_by_id(activity_id: int)`: Get detailed information about a specific activity
 - `get_recent_activities(days: int = 7, limit: int = 10)`: Get activities from the past X days
+- `get_activity_laps(activity_id: int)`: Get laps for a specific activity
 
 Dates should be provided in ISO format (`YYYY-MM-DD`).
 
@@ -73,10 +74,8 @@ Update your `claude_desktop_config.json` (located in `~/Library/Application\ Sup
 {
     "mcpServers": {
         "strava": {
-            "command": "uvx",
-            "args": [
-                "strava-mcp-server"
-            ],
+            "command": "/path/to/your/venv/bin/strava-mcp-server",
+            "args": [],
             "env": {
                 "STRAVA_CLIENT_ID": "YOUR_CLIENT_ID",
                 "STRAVA_CLIENT_SECRET": "YOUR_CLIENT_SECRET",
@@ -86,6 +85,9 @@ Update your `claude_desktop_config.json` (located in `~/Library/Application\ Sup
     }
 }
 ```
+
+- `command`: Path to your installed `strava-mcp-server` executable (update as needed for your environment)
+- `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN`: Replace with your own Strava API credentials
 
 ### Claude Web
 
