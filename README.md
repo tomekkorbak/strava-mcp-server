@@ -12,11 +12,13 @@ The server exposes the following tools:
 
 ### Activities Queries
 
-- `get_activities(limit: int = 10)`: Get the authenticated athlete's recent activities
-- `get_activities_by_date_range(start_date: str, end_date: str, limit: int = 30)`: Get activities within a specific date range
-- `get_activity_by_id(activity_id: int)`: Get detailed information about a specific activity
-- `get_recent_activities(days: int = 7, limit: int = 10)`: Get activities from the past X days
+- `get_activities(limit: int = 10)`: Get the authenticated athlete's recent activities (includes lap data)
+- `get_activities_by_date_range(start_date: str, end_date: str, limit: int = 30)`: Get activities within a specific date range (includes lap data)
+- `get_activity_by_id(activity_id: int)`: Get detailed information about a specific activity (includes lap data)
+- `get_recent_activities(days: int = 7, limit: int = 10)`: Get activities from the past X days (includes lap data)
 - `get_activity_laps(activity_id: int)`: Get laps for a specific activity
+- `get_activity_streams(activity_id: int, keys: str)`: Get detailed time-series data (GPS coordinates, heart rate, power, cadence, altitude, etc.) for a specific activity
+- `get_activity_zones(activity_id: int)`: Get heart rate and power zone distribution data for a specific activity
 
 Dates should be provided in ISO format (`YYYY-MM-DD`).
 
@@ -111,6 +113,10 @@ Once connected, you can ask Claude questions like:
 - "Show me my activities from last week"
 - "What was my longest run in the past month?"
 - "Get details about my latest cycling activity"
+- "Get the GPS track and heart rate data for activity 12345"
+- "Show me the power zones for my last bike ride"
+- "Get detailed streams data for my morning run"
+- "Analyze the elevation profile of my latest hike"
 
 ## Error Handling
 

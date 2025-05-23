@@ -80,7 +80,7 @@ class StravaClient:
         return response.json()
 
     def get_activities(
-        self, limit: int = 10, before: Optional[int] = None, after: Optional[int] = None
+        self, limit: int = 10, before: Optional[int] = None, after: Optional[int] = None, include_laps: bool = False
     ) -> list:
         """
         Get the authenticated athlete's activities.
@@ -89,6 +89,7 @@ class StravaClient:
             limit: Maximum number of activities to return
             before: Unix timestamp to filter activities before this time
             after: Unix timestamp to filter activities after this time
+            include_laps: Whether to include lap data for each activity (requires additional API calls)
 
         Returns:
             List of activities
@@ -102,22 +103,23 @@ class StravaClient:
             params["after"] = after
 
         activities = self._make_request("athlete/activities", params)
-        return self._filter_activities(activities)
+        return self._filter_activities(activities, include_laps=include_laps)
 
-    def get_activity(self, activity_id: int) -> dict:
+    def get_activity(self, activity_id: int, include_laps: bool = False) -> dict:
         """
         Get detailed information about a specific activity.
 
         Args:
             activity_id: ID of the activity to retrieve
+            include_laps: Whether to include lap data for the activity
 
         Returns:
             Activity details
         """
         activity = self._make_request(f"activities/{activity_id}")
-        return self._filter_activity(activity)
+        return self._filter_activity(activity, include_laps=include_laps)
 
-    def _filter_activity(self, activity: dict) -> dict:
+    def _filter_activity(self, activity: dict, include_laps: bool = False) -> dict:
         """Filter activity to only include specific keys and rename with units."""
         # Define field mappings with units
         field_mappings = {
@@ -144,11 +146,20 @@ class StravaClient:
             if old_key in activity:
                 filtered_activity[new_key] = activity[old_key]
 
+        # Include lap data if requested
+        if include_laps and "id" in activity:
+            try:
+                laps = self.get_activity_laps(activity["id"])
+                filtered_activity["laps"] = laps
+            except Exception:
+                # If laps can't be fetched, don't include them
+                pass
+
         return filtered_activity
 
-    def _filter_activities(self, activities: list) -> list:
+    def _filter_activities(self, activities: list, include_laps: bool = False) -> list:
         """Filter a list of activities to only include specific keys with units."""
-        return [self._filter_activity(activity) for activity in activities]
+        return [self._filter_activity(activity, include_laps=include_laps) for activity in activities]
 
     def close(self) -> None:
         """Close the HTTP client."""
@@ -166,6 +177,34 @@ class StravaClient:
         """
         laps = self._make_request(f"activities/{activity_id}/laps")
         return laps
+
+    def get_activity_streams(self, activity_id: int, keys: str = "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth") -> dict:
+        """
+        Get streams for a specific activity.
+
+        Args:
+            activity_id: ID of the activity to retrieve streams for
+            keys: Comma-separated list of stream types to retrieve
+
+        Returns:
+            Dictionary of streams (as returned by Strava API)
+        """
+        params = {"keys": keys, "key_by_type": "true"}
+        streams = self._make_request(f"activities/{activity_id}/streams", params)
+        return streams
+
+    def get_activity_zones(self, activity_id: int) -> list:
+        """
+        Get zones for a specific activity.
+
+        Args:
+            activity_id: ID of the activity to retrieve zones for
+
+        Returns:
+            List of zones (as returned by Strava API)
+        """
+        zones = self._make_request(f"activities/{activity_id}/zones")
+        return zones
 
 
 def timestamp_to_date(timestamp: int) -> date:
@@ -234,7 +273,7 @@ def get_activities(limit: int = 10) -> dict[str, Any]:
         limit: Maximum number of activities to return (default: 10)
 
     Returns:
-        Dictionary containing activities data
+        Dictionary containing activities data with lap information
     """
     if strava_client is None:
         return {
@@ -242,7 +281,7 @@ def get_activities(limit: int = 10) -> dict[str, Any]:
         }
 
     try:
-        activities = strava_client.get_activities(limit=limit)
+        activities = strava_client.get_activities(limit=limit, include_laps=True)
         return {"data": activities}
     except Exception as e:
         return {"error": str(e)}
@@ -259,7 +298,7 @@ def get_activities_by_date_range(start_date: str, end_date: str, limit: int = 30
         limit: Maximum number of activities to return (default: 30)
 
     Returns:
-        Dictionary containing activities data
+        Dictionary containing activities data with lap information
     """
     if strava_client is None:
         return {
@@ -274,7 +313,7 @@ def get_activities_by_date_range(start_date: str, end_date: str, limit: int = 30
         after = int(datetime.combine(start, datetime.min.time()).timestamp())
         before = int(datetime.combine(end, datetime.max.time()).timestamp())
 
-        activities = strava_client.get_activities(limit=limit, before=before, after=after)
+        activities = strava_client.get_activities(limit=limit, before=before, after=after, include_laps=True)
         return {"data": activities}
     except Exception as e:
         return {"error": str(e)}
@@ -289,7 +328,7 @@ def get_activity_by_id(activity_id: int) -> dict[str, Any]:
         activity_id: ID of the activity to retrieve
 
     Returns:
-        Dictionary containing activity details
+        Dictionary containing activity details with lap information
     """
     if strava_client is None:
         return {
@@ -297,7 +336,7 @@ def get_activity_by_id(activity_id: int) -> dict[str, Any]:
         }
 
     try:
-        activity = strava_client.get_activity(activity_id)
+        activity = strava_client.get_activity(activity_id, include_laps=True)
         return {"data": activity}
     except Exception as e:
         return {"error": str(e)}
@@ -313,7 +352,7 @@ def get_recent_activities(days: int = 7, limit: int = 10) -> dict[str, Any]:
         limit: Maximum number of activities to return (default: 10)
 
     Returns:
-        Dictionary containing activities data
+        Dictionary containing activities data with lap information
     """
     if strava_client is None:
         return {
@@ -326,7 +365,7 @@ def get_recent_activities(days: int = 7, limit: int = 10) -> dict[str, Any]:
         days_ago = now - timedelta(days=days)
         after = int(days_ago.timestamp())
 
-        activities = strava_client.get_activities(limit=limit, after=after)
+        activities = strava_client.get_activities(limit=limit, after=after, include_laps=True)
         return {"data": activities}
     except Exception as e:
         return {"error": str(e)}
@@ -351,6 +390,53 @@ def get_activity_laps(activity_id: int) -> dict[str, Any]:
     try:
         laps = strava_client.get_activity_laps(activity_id)
         return {"data": laps}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def get_activity_streams(activity_id: int, keys: str = "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth") -> dict[str, Any]:
+    """
+    Get detailed time-series data (streams) for a specific activity.
+
+    Args:
+        activity_id: ID of the activity to retrieve streams for
+        keys: Comma-separated list of stream types to retrieve (default includes most common streams)
+
+    Returns:
+        Dictionary containing streams data including GPS coordinates, heart rate, power, etc.
+    """
+    if strava_client is None:
+        return {
+            "error": "Strava client not initialized. Please provide refresh token, client ID, and client secret."
+        }
+
+    try:
+        streams = strava_client.get_activity_streams(activity_id, keys)
+        return {"data": streams}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def get_activity_zones(activity_id: int) -> dict[str, Any]:
+    """
+    Get heart rate and power zone data for a specific activity.
+
+    Args:
+        activity_id: ID of the activity to retrieve zones for
+
+    Returns:
+        Dictionary containing zone data (heart rate zones, power zones)
+    """
+    if strava_client is None:
+        return {
+            "error": "Strava client not initialized. Please provide refresh token, client ID, and client secret."
+        }
+
+    try:
+        zones = strava_client.get_activity_zones(activity_id)
+        return {"data": zones}
     except Exception as e:
         return {"error": str(e)}
 
