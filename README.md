@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/tomekkorbak-strava-mcp-server-badge.png)](https://mseep.ai/app/tomekkorbak-strava-mcp-server)
+
 # Strava MCP Server
 
 ![Python Package](https://github.com/tomekkorbak/strava-mcp-server/workflows/Python%20Package/badge.svg)
