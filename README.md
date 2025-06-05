@@ -3,6 +3,7 @@
 ![Python Package](https://github.com/tomekkorbak/strava-mcp-server/workflows/Python%20Package/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=strava&config=eyJjb21tYW5kIjoidXZ4IHN0cmF2YS1tY3Atc2VydmVyIiwiZW52Ijp7IlNUUkFWQV9DTElFTlRfSUQiOiJZT1VSX0NMSUVOVF9JRCIsIlNUUkFWQV9DTElFTlRfU0VDUkVUIjoiWU9VUl9DTElFTlRfU0VDUkVUIiwiU1RSQVZBX1JFRlJFU0hfVE9LRU4iOiJZT1VSX1JFRlJFU0hfVE9LRU4ifX0%3D)
 
 A [Model Context Protocol](https://modelcontextprotocol.io/introduction) (MCP) server that provides access to the Strava API. It allows language models to query athlete activities data from the Strava API.
 
