@@ -18,6 +18,9 @@ The server exposes the following tools:
 - `get_activity_by_id(activity_id: int)`: Get detailed information about a specific activity
 - `get_recent_activities(days: int = 7, limit: int = 10)`: Get activities from the past X days
 
+### Gear Queries
+- `get_gear_stats()`: Get authenticated athlere's gear stats for active shoes and bikes.
+
 Dates should be provided in ISO format (`YYYY-MM-DD`).
 
 ## Activity Data Format
@@ -40,6 +43,35 @@ The server returns activity data with consistent field names and units:
 | `calories` | Calories burned | kcal |
 | `start_latlng` | Start coordinates | [lat, lng] |
 | `end_latlng` | End coordinates | [lat, lng] |
+
+## Gear Data Format
+
+The server returns gear data in the following format:
+
+```
+{
+  "data": {
+    "bikes": [
+      {
+        "id": "b13698478",
+        "name": "Trek 2300",
+        "distance": 1905.4,
+        "retired": false
+      },
+      ...
+    ],
+    "shoes": [
+      {
+        "id": "g20768874",
+        "name": "New Balance rebel v4",
+        "distance": 165.7,
+        "retired": false
+      },
+      ...
+    ]
+  }
+}
+```
 
 ## Authentication
 

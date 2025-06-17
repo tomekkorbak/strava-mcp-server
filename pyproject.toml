@@ -12,6 +12,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "fastmcp>=0.1.0",
     "rich>=13.0.0",
+    "requests>=2.32.3",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
